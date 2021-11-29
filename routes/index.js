@@ -3,19 +3,20 @@ var router = express.Router();
 //const {Mongoose} = require('mongoose');
 const mongoose = require("mongoose");
 const userCommonModel = require("../models/usersCommon.model");
-
-//Set Port
-//await mongoose.connect("mongodb://localhost/erp"); => port default
-//await mongoose.connect("mongodb://localhost:3000/erp"); => port do mình set
+const authService = require("../services/auth.service");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+//Set Port
+//await mongoose.connect("mongodb://localhost/erp"); => port default
+//await mongoose.connect("mongodb://localhost:3000/erp"); => port do mình set
 router.post("/",async (req,res,next) =>{
   //mongoose.connect("mongodb://localhost/erp");
   res.send("connect to mongodb");
+
   await mongoose.connect("mongodb://localhost/erp");
   const PersonSchema = new mongoose.Schema({ name: String, dob: Number });	// Schema
   const Person = mongoose.model("Person", PersonSchema);		// Model
@@ -34,6 +35,7 @@ router.put("/",async (req,res,next)=>{
   console.log(persons);
 })
 
+
 router.post('/login', async(req, res, next)=> {
   //res.send('/login');
   const user = await userCommonModel.findOne({
@@ -51,7 +53,8 @@ router.post('/login', async(req, res, next)=> {
   }
   else{
     // Send Token
-    res.status(401).send("OK");
+    const token = authService.createJWTToken({email: user.email});
+    res.status(401).send(token);
   }
   //res.send(user);
 });
