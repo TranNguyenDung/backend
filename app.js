@@ -87,7 +87,6 @@ const job = schedule.scheduleJob("*/5 * * * * *", function () {// moi 10 giay
   console.log("The answer to life, the universe, and everything!: " + value++);
   updateCurrency2();
   job.cancel();
-  
 });
 //----------------------------------------------------
 // Port nhận thông tin request
