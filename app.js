@@ -5,6 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const schedule = require("node-schedule");
+const cors = require("cors");
 
 const {updateCurrency2} = require("./services/currency2.services");
 // Auto routers
@@ -24,7 +25,6 @@ var usersRouter = require('./routes/users');
 var productRouter = require('./routes/products')
 var currenciesRouter = require('./routes/Currencies')
 var roleRouter = require('./routes/Roles')
-var usersCommonRouter = require('./routes/usersCommon')
 //----------------------------------------------------
 var app = express();
 // DB setup
@@ -44,6 +44,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));// khai báo folder truy cập từ client
+
+//app.use(cors());
+//app.options("*",cors());
+// app.
+
 //----------------------------------------------------
 //kiểu viết trải các router
 app.use('/', indexRouter);
@@ -51,7 +56,6 @@ app.use('/users', usersRouter);
 app.use('/products', productRouter);//> nhảy vào product file
 app.use('/currency', currenciesRouter);
 app.use('/role', roleRouter);
-app.use('/usersCommon', usersCommonRouter);
 //----------------------------------------------------
 // Kiểu viết ngắn gọn để router file
 if(routers.length > 0){
@@ -91,6 +95,7 @@ const job = schedule.scheduleJob("*/5 * * * * *", function () {// moi 10 giay
 //----------------------------------------------------
 // Port nhận thông tin request
 app.listen(5000);
+app.set("port",process.env.PORT || 5000);
 //----------------------------------------------------
 module.exports = app;
 
@@ -101,3 +106,4 @@ module.exports = app;
 
 //express-fileupload -> Upload qua exp
 // npm install node-schedule  -> Scheduler
+//npm run cors -> chống bên khác lấy data của backend

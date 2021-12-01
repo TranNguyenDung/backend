@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-const userCommonModel = require("../models/usersCommon.model");
+const userCommonModel = require("../models/users.model");
 
-//http://localhost:5000/usersCommon/login
+//http://localhost:5000/users/login
 //{
 //"email": "tnguyendung.x1@gmail.com",
 //"password":"123456"
@@ -15,7 +15,7 @@ router.post('/login', async(req, res, next)=> {
   res.send(user);
 });
 
-//http://localhost:5000/usersCommon/login
+//http://localhost:5000/users/login
 router.post('/change-password', async(req, res, next)=> {
   const user = await userCommonModel.updateOne({email: req.body.email},{password:req.body.password}).exec();
   res.send(user);

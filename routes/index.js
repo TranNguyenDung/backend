@@ -1,59 +1,81 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 //const {Mongoose} = require('mongoose');
 const mongoose = require("mongoose");
-const userCommonModel = require("../models/usersCommon.model");
+const userCommonModel = require("../models/users.model");
 const authService = require("../services/auth.service");
 
+router.all("*", function (req, res, next) {
+  console.log(req.data);
+});
+
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get("/", function (req, res, next) {
+  res.render("index", { title: "Express" });
 });
 
 //Set Port
 //await mongoose.connect("mongodb://localhost/erp"); => port default
 //await mongoose.connect("mongodb://localhost:3000/erp"); => port do mình set
-router.post("/",async (req,res,next) =>{
+router.post("/", async (req, res, next) => {
   //mongoose.connect("mongodb://localhost/erp");
   res.send("connect to mongodb");
 
   await mongoose.connect("mongodb://localhost/erp");
-  const PersonSchema = new mongoose.Schema({ name: String, dob: Number });	// Schema
-  const Person = mongoose.model("Person", PersonSchema);		// Model
-  const person = new Person({ name: "Dung", dob: 1988 });			// Document
+  const PersonSchema = new mongoose.Schema({ name: String, dob: Number }); // Schema
+  const Person = mongoose.model("Person", PersonSchema); // Model
+  const person = new Person({ name: "Dung", dob: 1988 }); // Document
   await person.save();
   res.send("connect to mongodb");
 });
 
-router.put("/",async (req,res,next)=>{
+router.put("/", async (req, res, next) => {
   //const mongoose = require("mongoose");
   //await mongoose.connect("mongodb://localhost/erp");
-  const PersonSchema = new mongoose.Schema({ name: String, dob: Number });	// Schema
-  const Person = mongoose.model("Person", PersonSchema);		// Model
+  const PersonSchema = new mongoose.Schema({ name: String, dob: Number }); // Schema
+  const Person = mongoose.model("Person", PersonSchema); // Model
   const persons = await Person.find();
   res.send(persons);
   console.log(persons);
-})
+});
 
+router.post("/sign-up", async (req, res, next) => {
+  console.log("---------sign up");
+  const user = await UserCommonSchema.findOne({ email: req.body.email }).exec();
+  if (!!user) {
+    res.status(409).send("Email already exist.");
+    return;
+  }
+  const newUser = await UserCommonSchema.create({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+  });
 
-router.post('/login', async(req, res, next)=> {
-  //res.send('/login');
+  res.status(201).send(newUser);
+  //md5
+  //blowfish(bcxrypt)
+});
+
+router.post("/login", async (req, res, next) => {
+  console.log("---------login");
   const user = await userCommonModel.findOne({
     email: req.body.email,
   });
 
-  if(!!!user){
+  if (!!!user) {
     res.status(401).send("Invalid user");
-  }
-  else if(user.password !== req.body.password){
+  } else if (user.password !== req.body.password) {
     res.status(401).send("Wrong email or password");
-  }
-  else if(!user.activeted){
+  } else if (!user.activeted) {
     res.status(401).send("User is not activeted");
-  }
-  else{
+  } else {
     // Send Token
-    const token = authService.createJWTToken({email: user.email});
+    const token = authService.createJWTToken({
+      id: user._id,
+      email: user.email,
+      // __V: 1 // Version cuar token
+    });
     res.status(401).send(token);
   }
   //res.send(user);

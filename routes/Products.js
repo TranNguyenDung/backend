@@ -10,17 +10,22 @@ const upload = multer({dest: 'uploads/'});
 const fs = require("fs");
 const fsPromises = fs.promises;
 
+//http://localhost:5000/products/upload-thumbnail
+//form-data
+//Key: image : value: image load
 router.post("/upload-thumbnail", upload.single("image"), async (req, res, next) => {
     const uploadFolder = "uploads2";
+    console.log("-----------> Upload file");
     if (!fs.existsSync(uploadFolder)) fs.mkdirSync(uploadFolder);
     console.log(req.file);
+    console.log(req.file.path);
     await fsPromises.copyFile(req.file.path, `${uploadFolder}\\${path.basename(req.file.path)}`);
     await fsPromises.unlink(req.file.path);
-
+    
     if (!req.file) {
-      const error = new Error("Please upload a file");
-      error.httpStatusCode = 400;
-      return next(error);
+        const error = new Error("Please upload a file");
+        error.httpStatusCode = 400;
+        return next(error);
     }
     res.send(req.file);
   }
