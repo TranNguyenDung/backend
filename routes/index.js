@@ -2,12 +2,12 @@ var express = require("express");
 var router = express.Router();
 //const {Mongoose} = require('mongoose');
 const mongoose = require("mongoose");
-const userCommonModel = require("../models/users.model");
+const userModel = require("../models/users.model");
 const authService = require("../services/auth.service");
 
-router.all("*", function (req, res, next) {
-  console.log(req.data);
-});
+// router.all("*", function (req, res, next) {
+//   console.log(req.data);
+// });
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -41,12 +41,12 @@ router.put("/", async (req, res, next) => {
 
 router.post("/sign-up", async (req, res, next) => {
   console.log("---------sign up");
-  const user = await UserCommonSchema.findOne({ email: req.body.email }).exec();
+  const user = await userModel.findOne({ email: req.body.email }).exec();
   if (!!user) {
     res.status(409).send("Email already exist.");
     return;
   }
-  const newUser = await UserCommonSchema.create({
+  const newUser = await userModel.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
@@ -59,24 +59,27 @@ router.post("/sign-up", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   console.log("---------login");
-  const user = await userCommonModel.findOne({
+  const user = await userModel.findOne({
     email: req.body.email,
   });
+  //console.log(user);
 
   if (!!!user) {
-    res.status(401).send("Invalid user");
+    res.status(409).send("Invalid user");
   } else if (user.password !== req.body.password) {
     res.status(401).send("Wrong email or password");
   } else if (!user.activeted) {
     res.status(401).send("User is not activeted");
   } else {
     // Send Token
+    console.log("authService");
     const token = authService.createJWTToken({
       id: user._id,
       email: user.email,
       // __V: 1 // Version cuar token
     });
-    res.status(401).send(token);
+    console.log(token);
+    res.status(200).send(token);
   }
   //res.send(user);
 });
